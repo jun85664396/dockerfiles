@@ -26,6 +26,10 @@ ENV JAVA_HOME "/usr/lib/jvm/java-7-openjdk-amd64"
 # Add default nginx config
 ADD nginx-sites.conf /etc/nginx/sites-enabled/default
 
+RUN locale-gen en_US.UTF-8
+RUN echo 'LC_ALL=en_US.UTF-8' > /etc/default/locale
+RUN echo 'LANG=en_US.UTF-8' >> /etc/default/locale
+
 # Rails
 WORKDIR /app
 ONBUILD ADD Gemfile /app/Gemfile
