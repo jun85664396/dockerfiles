@@ -1,32 +1,30 @@
-FROM seapy/ruby:2.2.0
+FROM node:8.9.4 AS nodejs
+FROM openjdk:9-jdk AS openjdk
+FROM ruby:2.5.0
 MAINTAINER SangPil Jun <jun85664396@gmail.com>
 
 RUN apt-get update
 
 # Install nodejs
-RUN apt-get install -qq -y nodejs
-
-# Intall software-properties-common for add-apt-repository
-RUN apt-get install -qq -y software-properties-common
+COPY --from=nodejs /usr/local/bin/node /bin/
 
 # Install Nginx.
-RUN add-apt-repository -y ppa:nginx/stable
 RUN apt-get update
 RUN apt-get install -qq -y nginx
 RUN echo "\ndaemon off;" >> /etc/nginx/nginx.conf
 RUN chown -R www-data:www-data /var/lib/nginx
 
 # Install Mysql (for mysql)
-RUN apt-get install -qq -y libmysqlclient-dev
+#RUN apt-get install -qq -y libmysqlclient-dev
 
 # Install Jdk (for rjb)
-RUN apt-get install -qq -y openjdk-7-jdk
-ENV JAVA_HOME "/usr/lib/jvm/java-7-openjdk-amd64"
+COPY --from=openjdk /docker-java-home /docker-java-home
+ENV JAVA_HOME "/docker-java-home"
 
 # Add default nginx config
 ADD nginx-sites.conf /etc/nginx/sites-enabled/default
 
-RUN locale-gen en_US.UTF-8
+#RUN locale-gen en_US.UTF-8
 RUN echo 'LC_ALL=en_US.UTF-8' > /etc/default/locale
 RUN echo 'LANG=en_US.UTF-8' >> /etc/default/locale
 
