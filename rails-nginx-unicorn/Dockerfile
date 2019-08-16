@@ -1,12 +1,14 @@
 FROM node:8.9.4 AS nodejs
 FROM openjdk:9-jdk AS openjdk
-FROM ruby:2.5.0
+FROM ruby:2.3.4
 MAINTAINER SangPil Jun <jun85664396@gmail.com>
 
 RUN apt-get update
 
 # Install nodejs
 COPY --from=nodejs /usr/local/bin/node /bin/
+COPY --from=nodejs /usr/local/lib/node_modules/ /usr/local/lib/node_modules
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /bin/npm
 
 # Install Nginx.
 RUN apt-get update
@@ -20,6 +22,7 @@ RUN chown -R www-data:www-data /var/lib/nginx
 # Install Jdk (for rjb)
 COPY --from=openjdk /docker-java-home /docker-java-home
 ENV JAVA_HOME "/docker-java-home"
+ENV PATH="/docker-java-home/bin:${PATH}"
 
 # Add default nginx config
 ADD nginx-sites.conf /etc/nginx/sites-enabled/default
